@@ -1,5 +1,6 @@
 #!/usr/bin/python
-#
+# -*- coding: utf-8 -*-
+
 # This file is part of Ansible
 #
 # Ansible is free software: you can redistribute it and/or modify
@@ -175,6 +176,13 @@ EXAMPLES = """
     backup_options:
       filename: backup.cfg
       dir_path: /home/user
+
+- name: run lines
+  acos_config:
+    lines:
+      - ip dns primary 10.18.18.56
+      - slb template http swapnilomAfrin-config7
+  check_mode: yes
 """
 
 RETURN = """
@@ -398,9 +406,10 @@ def main():
 
             # send the configuration commands to the device and merge
             # them with the current running config
-            if commands:
-                edit_config_or_macro(connection, commands)
-                result['changed'] = True
+            if not module.check_mode:
+               if commands:
+                  edit_config_or_macro(connection, commands)
+                  result['changed'] = True
 
 # for comparing running config with candidate config
     running_configuration = run_commands(module, 'show running-config')
