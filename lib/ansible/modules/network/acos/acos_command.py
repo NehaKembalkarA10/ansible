@@ -1,5 +1,6 @@
 #!/usr/bin/python
-#
+# -*- coding: utf-8 -*-
+
 # This file is part of Ansible
 #
 # Ansible is free software: you can redistribute it and/or modify
@@ -124,6 +125,14 @@ EXAMPLES = r"""
           - command: 'configure'
           - command: 'slb server ok6 10.43.24.17'
           - command: 'exit'
+    
+    - name: Run commands from lines
+      acos_command:
+        commands:
+          - command: 'configure'
+          - command: 'slb server ok7 10.43.24.18'
+          - command: 'exit'
+      check_mode: 'yes'
 """
 
 RETURN = """
@@ -143,6 +152,7 @@ failed_conditions:
   type: list
   sample: ['...', '...']
 """
+
 import time
 
 from ansible.module_utils._text import to_text
