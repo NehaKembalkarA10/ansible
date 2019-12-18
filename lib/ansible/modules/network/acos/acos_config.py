@@ -181,7 +181,7 @@ EXAMPLES = """
   acos_config:
     lines:
       - ip dns primary 10.18.18.56
-      - slb template http swapnilomAfrin-config7
+      - slb template http template1
   check_mode: yes
 """
 
