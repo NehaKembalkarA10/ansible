@@ -1,153 +1,155 @@
-# This code is part of Ansible, but is an independent component.
-# This particular file snippet, and this file snippet only, is BSD licensed.
-# Modules you write using this snippet, which is embedded dynamically by Ansible
-# still belong to the author of the module, and may assign their own license
-# to the complete work.
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 #
-# Copyright (c), Michael DeHaan <michael.dehaan@gmail.com>, 2012-2013
-# All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without modification,
-# are permitted provided that the following conditions are met:
-#
-#    * Redistributions of source code must retain the above copyright
-#      notice, this list of conditions and the following disclaimer.
-#    * Redistributions in binary form must reproduce the above copyright notice,
-#      this list of conditions and the following disclaimer in the documentation
-#      and/or other materials provided with the distribution.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-# IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-# USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# Copyright: (c) 2020, A10 Networks Inc.
+# GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 import json
+import os
+import time
 
-from ansible.module_utils.urls import fetch_url
+from ansible.module_utils._text import to_text
+from ansible.module_utils.basic import env_fallback
+from ansible.module_utils.network.common.utils import to_list
+from ansible.module_utils.connection import Connection, ConnectionError
 
+_DEVICE_CONFIGS = {}
 
-AXAPI_PORT_PROTOCOLS = {
-    'tcp': 2,
-    'udp': 3,
+acos_provider_spec = {
+    'host': dict(),
+    'port': dict(type='int'),
+    'username': dict(fallback=(env_fallback, ['ANSIBLE_NET_USERNAME'])),
+    'password': dict(fallback=(env_fallback, ['ANSIBLE_NET_PASSWORD']),
+                     no_log=True),
+    'ssh_keyfile': dict(fallback=(env_fallback, ['ANSIBLE_NET_SSH_KEYFILE']),
+                        type='path'),
+    'authorize': dict(fallback=(env_fallback, ['ANSIBLE_NET_AUTHORIZE']),
+                      type='bool'),
+    'auth_pass': dict(fallback=(env_fallback, ['ANSIBLE_NET_AUTH_PASS']),
+                      no_log=True),
+    'timeout': dict(type='int')
+}
+acos_argument_spec = {
+    'provider': dict(type='dict', options=acos_provider_spec),
 }
 
-AXAPI_VPORT_PROTOCOLS = {
-    'tcp': 2,
-    'udp': 3,
-    'fast-http': 9,
-    'http': 11,
-    'https': 12,
+acos_top_spec = {
+    'host': dict(removed_in_version=2.9),
+    'port': dict(removed_in_version=2.9, type='int'),
+    'username': dict(removed_in_version=2.9),
+    'password': dict(removed_in_version=2.9, no_log=True),
+    'ssh_keyfile': dict(removed_in_version=2.9, type='path'),
+    'authorize': dict(fallback=(env_fallback, ['ANSIBLE_NET_AUTHORIZE']),
+                      type='bool'),
+    'auth_pass': dict(removed_in_version=2.9, no_log=True),
+    'timeout': dict(removed_in_version=2.9, type='int')
 }
+acos_argument_spec.update(acos_top_spec)
 
 
-def a10_argument_spec():
-    return dict(
-        host=dict(type='str', required=True),
-        username=dict(type='str', aliases=['user', 'admin'], required=True),
-        password=dict(type='str', aliases=['pass', 'pwd'], required=True, no_log=True),
-        write_config=dict(type='bool', default=False)
-    )
+def get_provider_argspec():
+    return acos_provider_spec
 
 
-def axapi_failure(result):
-    if 'response' in result and result['response'].get('status') == 'fail':
-        return True
-    return False
+def get_connection(module):
+    if hasattr(module, '_acos_connection'):
+        return module._acos_connection
 
-
-def axapi_call(module, url, post=None):
-    '''
-    Returns a datastructure based on the result of the API call
-    '''
-    rsp, info = fetch_url(module, url, data=post)
-    if not rsp or info['status'] >= 400:
-        module.fail_json(msg="failed to connect (status code %s), error was %s" % (info['status'], info.get('msg', 'no error given')))
-    try:
-        raw_data = rsp.read()
-        data = json.loads(raw_data)
-    except ValueError:
-        # at least one API call (system.action.write_config) returns
-        # XML even when JSON is requested, so do some minimal handling
-        # here to prevent failing even when the call succeeded
-        if 'status="ok"' in raw_data.lower():
-            data = {"response": {"status": "OK"}}
-        else:
-            data = {"response": {"status": "fail", "err": {"msg": raw_data}}}
-    except Exception:
-        module.fail_json(msg="could not read the result from the host")
-    finally:
-        rsp.close()
-    return data
-
-
-def axapi_authenticate(module, base_url, username, password):
-    url = '%s&method=authenticate&username=%s&password=%s' % (base_url, username, password)
-    result = axapi_call(module, url)
-    if axapi_failure(result):
-        return module.fail_json(msg=result['response']['err']['msg'])
-    sessid = result['session_id']
-    return base_url + '&session_id=' + sessid
-
-
-def axapi_authenticate_v3(module, base_url, username, password):
-    url = base_url
-    auth_payload = {"credentials": {"username": username, "password": password}}
-    result = axapi_call_v3(module, url, method='POST', body=json.dumps(auth_payload))
-    if axapi_failure(result):
-        return module.fail_json(msg=result['response']['err']['msg'])
-    signature = result['authresponse']['signature']
-    return signature
-
-
-def axapi_call_v3(module, url, method=None, body=None, signature=None):
-    '''
-    Returns a datastructure based on the result of the API call
-    '''
-    if signature:
-        headers = {'content-type': 'application/json', 'Authorization': 'A10 %s' % signature}
+    capabilities = get_capabilities(module)
+    network_api = capabilities.get('network_api')
+    if network_api == 'cliconf':
+        module._acos_connection = Connection(module._socket_path)
     else:
-        headers = {'content-type': 'application/json'}
-    rsp, info = fetch_url(module, url, method=method, data=body, headers=headers)
-    if not rsp or info['status'] >= 400:
-        module.fail_json(msg="failed to connect (status code %s), error was %s" % (info['status'], info.get('msg', 'no error given')))
+        module.fail_json(msg='Invalid connection type %s' % network_api)
+
+    return module._acos_connection
+
+
+def get_capabilities(module):
+    if hasattr(module, '_acos_capabilities'):
+        return module._acos_capabilities
     try:
-        raw_data = rsp.read()
-        data = json.loads(raw_data)
-    except ValueError:
-        # at least one API call (system.action.write_config) returns
-        # XML even when JSON is requested, so do some minimal handling
-        # here to prevent failing even when the call succeeded
-        if 'status="ok"' in raw_data.lower():
-            data = {"response": {"status": "OK"}}
-        else:
-            data = {"response": {"status": "fail", "err": {"msg": raw_data}}}
-    except Exception:
-        module.fail_json(msg="could not read the result from the host")
-    finally:
-        rsp.close()
-    return data
+        capabilities = Connection(module._socket_path).get_capabilities()
+    except ConnectionError as exc:
+        module.fail_json(msg=to_text(exc, errors='surrogate_then_replace'))
+    module._acos_capabilities = json.loads(capabilities)
+    return module._acos_capabilities
 
 
-def axapi_enabled_disabled(flag):
-    '''
-    The axapi uses 0/1 integer values for flags, rather than strings
-    or booleans, so convert the given flag to a 0 or 1. For now, params
-    are specified as strings only so thats what we check.
-    '''
-    if flag == 'enabled':
-        return 1
+def get_defaults_flag(module):
+    connection = get_connection(module)
+    try:
+        out = connection.get_defaults_flag()
+    except ConnectionError as exc:
+        module.fail_json(msg=to_text(exc, errors='surrogate_then_replace'))
+    return to_text(out, errors='surrogate_then_replace').strip()
+
+
+def get_config(module, flags=None):
+    flags = to_list(flags)
+
+    section_filter = False
+    if flags and 'section' in flags[-1]:
+        section_filter = True
+
+    flag_str = ' '.join(flags)
+
+    try:
+        return _DEVICE_CONFIGS[flag_str]
+    except KeyError:
+        connection = get_connection(module)
+        try:
+            out = connection.get_config(flags=flags)
+        except ConnectionError as exc:
+            if section_filter:
+                out = get_config(module, flags=flags[:-1])
+            else:
+                module.fail_json(
+                    msg=to_text(
+                        exc, errors='surrogate_then_replace'))
+        cfg = to_text(out, errors='surrogate_then_replace').strip()
+        _DEVICE_CONFIGS[flag_str] = cfg
+        return cfg
+
+
+def run_commands(module, commands, check_rc=True):
+    connection = get_connection(module)
+    try:
+        return connection.run_commands(commands=commands, check_rc=check_rc)
+    except ConnectionError as exc:
+        module.fail_json(msg=to_text(exc))
+
+
+def load_config(module, commands):
+    connection = get_connection(module)
+
+    try:
+        resp = connection.edit_config(commands)
+        return resp.get('response')
+    except ConnectionError as exc:
+        module.fail_json(msg=to_text(exc))
+
+
+def backup(module, running_config):
+    backup_options = module.params['backup_options']
+    backup_path = backup_options['dir_path']
+    backup_filename = str(backup_options['filename'])
+    module.params['host'] = 'acos'
+    if not os.path.exists(backup_path):
+        try:
+            os.mkdir(backup_path)
+        except Exception:
+            module.fail_json(
+                msg="Can't create directory {0} Permission denied ?"
+                .format(backup_path))
+    tstamp = time.strftime("%Y-%m-%d@%H:%M:%S", time.localtime(time.time()))
+    if backup_filename != 'None':
+        filename = '%s/%s' % (backup_path, backup_filename)
     else:
-        return 0
-
-
-def axapi_get_port_protocol(protocol):
-    return AXAPI_PORT_PROTOCOLS.get(protocol.lower(), None)
-
-
-def axapi_get_vport_protocol(protocol):
-    return AXAPI_VPORT_PROTOCOLS.get(protocol.lower(), None)
+        filename = '%s/%s_config.%s' % (backup_path, module.params['host'],
+                                        tstamp)
+    try:
+        fh = open(filename, 'w+').write(running_config)
+    except Exception:
+        module.fail_json(msg="Can't create backup file {0} Permission denied ?"
+                         .format(filename))
