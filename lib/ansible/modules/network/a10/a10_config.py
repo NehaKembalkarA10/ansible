@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright: (c) 2019, A10 Networks Inc.
+# Copyright: (c) 2020, A10 Networks Inc.
 # GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 ANSIBLE_METADATA = {'metadata_version': '1.1',
@@ -9,7 +9,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'supported_by': 'community'}
 
 
-DOCUMENTATION = """
+DOCUMENTATION = r'''
 ---
 module: a10_config
 author: "Afrin Chakure"
@@ -130,9 +130,9 @@ options:
         running config and startup config. Configuration set that is part of
         startup config but not part of running config is returned.
     choices: ['running', 'startup', 'intended']
-"""
+'''
 
-EXAMPLES = """
+EXAMPLES = r'''
 - name: simple loadbalancer create commands
   a10_config:
     lines:
@@ -170,9 +170,9 @@ EXAMPLES = """
       - ip dns primary 10.18.18.56
       - slb template http abc-config7
   check_mode: yes
-"""
+'''
 
-RETURN = """
+RETURN = r'''
 commands:
   description: The set of commands that will be pushed to the remote device
   returned: always
@@ -188,7 +188,7 @@ filename:
   returned: when backup is yes and filename is not specified in backup options
   type: str
   sample: a10_config.2016-07-16@22:28:34
-"""
+'''
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.network.a10.a10 import acos_argument_spec
@@ -398,7 +398,7 @@ def main():
                   edit_config_or_macro(connection, commands)
                   result['changed'] = True
 
-# for comparing running config with candidate config
+    # for comparing running config with candidate config
     running_configuration = run_commands(module, 'show running-config')
     startup_configuration = run_commands(module, 'show startup-config')
     running_config_list = configuration_to_list(running_configuration)

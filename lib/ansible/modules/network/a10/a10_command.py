@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright: (c) 2019, A10 Networks Inc.
+# Copyright: (c) 2020, A10 Networks Inc.
 # GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 ANSIBLE_METADATA = {'metadata_version': '1.1',
@@ -9,7 +9,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'supported_by': 'community'}
 
 
-DOCUMENTATION = """
+DOCUMENTATION = r'''
 ---
 module: a10_command
 author: "Omkar Telee (@omkartelee)"
@@ -68,9 +68,9 @@ options:
         conditions, the interval indicates how long to wait before
         trying the command again.
     default: 1
-"""
+'''
 
-EXAMPLES = r"""
+EXAMPLES = r'''
   tasks:
     - name: run commands that require answering a prompt
       a10_command:
@@ -120,9 +120,9 @@ EXAMPLES = r"""
           - command: 'slb server ok7 10.43.24.18'
           - command: 'exit'
       check_mode: 'yes'
-"""
+'''
 
-RETURN = """
+RETURN = r'''
 stdout:
   description: The set of responses from the commands
   returned: always apart from low level errors (such as action plugin)
@@ -138,7 +138,7 @@ failed_conditions:
   returned: failed
   type: list
   sample: ['...', '...']
-"""
+'''
 
 import time
 

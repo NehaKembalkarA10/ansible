@@ -1,13 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright: (c) 2019, A10 Networks Inc.
+# Copyright: (c) 2020, A10 Networks Inc.
 # GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
-DOCUMENTATION = """
+DOCUMENTATION = r''' 
 ---
 author: Ansible Networking Team
 cliconf: a10
@@ -15,7 +15,7 @@ short_description: Use a10 cliconf to run command on A10 ACOS platform
 description:
   - This a10 plugin provides low level abstraction apis for
     sending and receiving CLI commands from A10 ACOS network devices.
-"""
+'''
 
 import re
 import time

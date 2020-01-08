@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright: (c) 2019, A10 Networks Inc.
+# Copyright: (c) 2020, A10 Networks Inc.
 # GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 ANSIBLE_METADATA = {'metadata_version': '1.1',
@@ -9,7 +9,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'supported_by': 'community'}
 
 
-DOCUMENTATION = """
+DOCUMENTATION = r'''
 ---
 module: a10_facts
 author:
@@ -33,9 +33,9 @@ options:
       - Specify a list of comma seperated values to include a larger subset.
     required: false
     default: 'all'
-"""
+'''
 
-EXAMPLES = """
+EXAMPLES = r'''
 - a10_facts:
     gather_subset: all
 
@@ -48,9 +48,9 @@ EXAMPLES = """
 - a10_facts:
     gather_subset:
       - "!hardware"
-"""
+'''
 
-RETURN = """
+RETURN = r'''
 ansible_net_gather_subset:
   description: The list of fact subsets collected from the device
   returned: always
@@ -115,7 +115,7 @@ ansible_net_interfaces:
   description: A hash of all interfaces running on the system
   returned: when interfaces is configured
   type: dict
-"""
+'''
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.network.a10.a10 import acos_argument_spec
