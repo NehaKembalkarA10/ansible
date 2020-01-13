@@ -137,7 +137,8 @@ def backup(module, running_config):
         filename = '%s/%s_config.%s' % (backup_path, module.params['host'],
                                         tstamp)
     try:
-        fh = open(filename, 'w+').write(running_config)
+        fh = open(filename, 'w+')
+        fh.write(running_config)
     except Exception:
         module.fail_json(msg="Can't create backup file {0} Permission denied ?"
                          .format(filename))

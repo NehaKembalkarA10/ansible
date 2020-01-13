@@ -88,7 +88,7 @@ class Default(FactsBase):
 class Hardware(FactsBase):
 
     def parse_memory(self, data):
-        # Memory 8071 Mbyte, Free Memory 3816 Mbyte
+        # Example - Memory 8071 Mbyte, Free Memory 3816 Mbyte
         data = data.strip()
         mem_list = data.split(',')
         total_mem, free_mem = mem_list
