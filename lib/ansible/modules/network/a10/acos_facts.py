@@ -125,9 +125,6 @@ class FactsArgs(object):
     """ The arg spec for the acos_facts module
     """
 
-    def __init__(self, **kwargs):
-        pass
-
     argument_spec = {
         'gather_subset': dict(default=['!config'], type='list')
     }
@@ -143,8 +140,7 @@ def main():
                            supports_check_mode=True)
 
     warnings = []
-    result = Facts(module).get_facts()
-    ansible_facts, additional_warnings = result
+    ansible_facts, additional_warnings = Facts(module).get_facts()
     warnings.extend(additional_warnings)
 
     module.exit_json(ansible_facts=ansible_facts, warnings=warnings)

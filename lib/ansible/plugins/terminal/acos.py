@@ -42,9 +42,6 @@ class TerminalModule(TerminalBase):
         re.compile(br"There exists an open[\s]+")
     ]
 
-    def on_open_shell(self):
-        pass
-
     def on_become(self, passwd=None):
         if self._get_prompt().endswith(b'#'):
             return
@@ -54,7 +51,7 @@ class TerminalModule(TerminalBase):
             cmd[u'prompt'] = "Password:"
             cmd[u'answer'] = passwd
         else:
-            msg = ("ansible_become_passeword is required for switching to"
+            msg = ("ansible_become_password is required for switching to"
                    " privilege mode.")
             raise AnsibleConnectionFailure(msg)
 

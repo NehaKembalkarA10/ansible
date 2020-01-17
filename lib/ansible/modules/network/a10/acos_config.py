@@ -191,7 +191,6 @@ filename:
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.network.a10.acos import acos_argument_spec
 from ansible.module_utils.network.a10.acos import get_config, run_commands
-from ansible.module_utils.network.a10.acos import get_defaults_flag
 from ansible.module_utils.network.a10.acos import backup, get_connection
 from ansible.module_utils.network.common.config import NetworkConfig, dumps
 
@@ -338,7 +337,7 @@ def main():
 
     diff_ignore_lines = module.params['diff_ignore_lines']
     contents = None
-    flags = get_defaults_flag(module) if module.params['defaults'] else []
+    flags = 'with-default' if module.params['defaults'] else []
     connection = get_connection(module)
 
     before_config_list = configuration_to_list(run_commands(module,
@@ -401,7 +400,7 @@ def main():
                           diff_ignore_lines=diff_ignore_lines_list)
     if len(difference) != 0:
         module.warn('Could not execute following commands or command does not'
-                    ' exist in running config after execution. Kindly check'
+                    ' exist in running config after execution. check'
                     'on ACOS device:' + str(difference))
 
     # intended_config

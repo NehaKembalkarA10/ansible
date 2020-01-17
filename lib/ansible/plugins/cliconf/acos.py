@@ -178,13 +178,3 @@ class Cliconf(CliconfBase):
             responses.append(out)
 
         return responses
-
-    def get_defaults_flag(self):
-        """
-        This method identifies the filter that should be used to fetch
-        running-configuration with defaults.
-        :return: valid default filter
-        """
-        out = self.get('show running-config')
-        out = to_text(out, errors='surrogate_then_replace')
-        return 'with-default'
