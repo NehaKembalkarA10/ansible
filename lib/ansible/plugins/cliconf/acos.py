@@ -158,7 +158,7 @@ class Cliconf(CliconfBase):
         if commands is None:
             raise ValueError("'commands' value is required")
 
-        responses = list()
+        responses = []
         for cmd in to_list(commands):
             if not isinstance(cmd, Mapping):
                 cmd = {'command': cmd}
