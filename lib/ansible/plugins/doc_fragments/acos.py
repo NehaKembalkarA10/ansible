@@ -12,5 +12,6 @@ class ModuleDocFragment(object):
     DOCUMENTATION = r'''
 notes:
     - "This module uses C(connection: network_cli)."
-    - For more information please see the L(ACOS Platform Options guide, ../network/user_guide/platform_acos.html). 
+    - For more information please see the L(ACOS Platform Options guide,
+      ../network/user_guide/platform_acos.html).
 '''
