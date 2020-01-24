@@ -28,8 +28,9 @@ options:
       - When supplied, this argument restricts the facts collected
          to a given subset.
       - Possible values for this argument include
-         all, and all possible show json-config paramters.
-      - Specify a list of comma seperated values to include a larger subset.
+         all, hardware, config and interfaces
+      - Specify a list of comma seperated values (without spaces) to include
+         a larger subset.
     required: false
     default: 'all'
 '''

@@ -21,15 +21,15 @@ class FactsBase(object):
 
     def __init__(self, module):
         self.module = module
-        self.warnings = list()
-        self.facts = dict()
+        self.warnings = []
+        self.facts = {}
         self.capabilities = get_capabilities(self.module)
 
     def populate(self):
         pass
 
     def transform_dict(self, data, keymap):
-        transform = dict()
+        transform = {}
         for key, fact in keymap:
             if key in data:
                 transform[fact] = data[key]
@@ -100,28 +100,26 @@ class Hardware(FactsBase):
         COMMANDS.append('show hardware | section Hardware')
         responses = run_commands(self.module, commands=COMMANDS,
                                  check_rc=False)
-        memory_info = responses[0]
-        self.facts['memtotal_mb'],
-        self.facts['memfree_mb'] = self.parse_memory(memory_info)
+        memory_info = self.parse_memory(responses[0])
+        self.facts['memtotal_mb'], self.facts['memfree_mb'] = memory_info
 
 
 class Interfaces(FactsBase):
 
-    ipv4_addr_list = list()
-    ipv6_addr_list = list()
+    ipv4_addr_list = []
+    ipv6_addr_list = []
 
     def populate(self):
-        self.facts['interfaces'] = dict()
-        #interface_dict = dict()
-        self.facts['all_ipv4_addresses'] = list()
-        self.facts['all_ipv6_addresses'] = list()
+        self.facts['interfaces'] = {}
+        self.facts['all_ipv4_addresses'] = []
+        self.facts['all_ipv6_addresses'] = []
         COMMANDS = []
         COMMANDS.append('show interfaces')
         responses = run_commands(self.module, commands=COMMANDS,
                                  check_rc=False)
 
         data = responses[0].strip().split('\n\n  ')
-        all_interface_list = dict()
+        all_interface_list = {}
         for data_obj in data:
             interfaces = self.parse_interface_key(data_obj)
             all_interface_list.update(self.populate_interfaces(interfaces))
