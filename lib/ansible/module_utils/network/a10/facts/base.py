@@ -145,16 +145,16 @@ class Interfaces(FactsBase):
     def populate_interfaces(self, interfaces):
         facts = dict()
         for key, value in iteritems(interfaces):
-            intf = dict()
-            intf['name'] = self.parse_interface_name(value)
-            intf['macaddress'] = self.parse_macaddress(value)
-            intf['mtu'] = self.parse_mtu(value)
-            intf['duplex'] = self.parse_duplex(value)
-            intf['operstatus'] = self.parse_operstatus(value)
-            intf['ipv4'] = self.parse_ipv4(value)
-            intf['ipv6'] = self.parse_ipv6(value)
+            iface = dict()
+            iface['name'] = self.parse_interface_name(value)
+            iface['macaddress'] = self.parse_macaddress(value)
+            iface['mtu'] = self.parse_mtu(value)
+            iface['duplex'] = self.parse_duplex(value)
+            iface['operstatus'] = self.parse_operstatus(value)
+            iface['ipv4'] = self.parse_ipv4(value)
+            iface['ipv6'] = self.parse_ipv6(value)
 
-            facts[key] = intf
+            facts[key] = iface
         return facts
 
     def parse_interface_name(self, data):

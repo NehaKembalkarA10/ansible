@@ -22,8 +22,7 @@ FACT_LEGACY_SUBSETS = dict(
 
 
 class Facts(FactsBase):
-    """ The fact class for ACOS
-    """
+    """ The fact class for ACOS """
 
     VALID_LEGACY_GATHER_SUBSETS = frozenset(FACT_LEGACY_SUBSETS.keys())
 

@@ -33,7 +33,7 @@ class Cliconf(CliconfBase):
     def get_config(self, source='running', flags=None, format=None):
         if source not in ('running', 'startup'):
             raise ValueError(
-                "fetching configuration from %s is not supported" % source)
+                "Fetching configuration from %s is not supported" % source)
 
         if format:
             raise ValueError(

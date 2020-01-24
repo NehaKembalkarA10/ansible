@@ -123,8 +123,7 @@ from ansible.module_utils.network.a10.facts.facts import Facts
 
 
 class FactsArgs(object):
-    """ The arg spec for the acos_facts module
-    """
+    """ The arg spec for the acos_facts module """
 
     argument_spec = {
         'gather_subset': dict(default=['!config'], type='list')
@@ -132,8 +131,7 @@ class FactsArgs(object):
 
 
 def main():
-    """ Main entry point for AnsibleModule
-    """
+    """ Main entry point for AnsibleModule """
     argument_spec = FactsArgs.argument_spec
     argument_spec.update(acos_argument_spec)
 
