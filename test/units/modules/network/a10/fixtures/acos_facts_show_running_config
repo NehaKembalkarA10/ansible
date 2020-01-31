@@ -1,8 +1,3 @@
-!Current configuration: 1636 bytes
-!Configuration last updated at 10:46:27 IST Wed Jan 29 2020
-!Configuration last saved at 12:31:23 IST Thu Jan 23 2020
-!64-bit Advanced Core OS (ACOS) version 4.1.1-P9, build 105 (Sep-21-2018,22:25)
-!
 ip dns primary 10.18.18.71
 !
 vlan 100
@@ -10,8 +5,6 @@ vlan 100
   router-interface ve 100
 !
 partition ssli_in id 1
-!
-hostname omkar
 !
 interface ethernet 1
   name inter1
@@ -39,7 +32,6 @@ interface trunk 10
   ip address 5.5.1.1 255.255.255.0
 !
 interface ve 100
-  ip address 2.2.2.2 255.255.255.0
 !
 interface loopback 1
   ip address 3.1.1.1 255.255.255.0
@@ -47,211 +39,31 @@ interface loopback 1
 interface lif 10
   ip address 1.2.1.1 255.255.255.0
 !
-!
 ip route 0.0.0.0 /0 192.168.1.1
 !
-health monitor 4422d
-  retry 5
-  interval 3 timeout 2
+health monitor hm1
 !
-health monitor udpudp2
-  override-ipv4 10.0.1.5
-  override-port 5555
-  method udp port 5555
+health monitor hm2
+  dsr-l2-strict
+  method tcp port 80
 !
-health monitor omkar2
+slb server server1 10.10.10.10
 !
-health monitor 85c75
-  retry 4
-  interval 10
-  method http port 80 expect response-code 200 url GET /abc.html
+slb server server2 10.10.20.10
+  health-check hm1
 !
-health monitor omkar3
-  retry 4
-  interval 10
-  method http port 80 expect response-code 200 url GET /abc.html
+slb service-group SG1 tcp
 !
-health monitor omkar4
-  retry 4
-  interval 10
-  method http port 80 expect response-code 200 url GET /abc.html
+slb service-group SG2 udp
+  health-check hm1
 !
-health monitor omkar5
-  retry 4
-  interval 10
-  method http port 80 expect response-code 200 url GET /abc.html
+slb template http template1
 !
-health monitor 85c75h
-  retry 4
-  interval 10
-  method http port 80 expect response-code 200 url GET /abc
+slb template http template2
+  url-switching contains abc service-group SG1
 !
-health monitor 7c15b
-  interval 5 timeout 3
-!
-health monitor 7c15b2
-  interval 5 timeout 3
-!
-health monitor vthunder_udp_heartbeat
-  retry 5
-  override-ipv4 192.168.0.31
-  override-port 5553
-  interval 5 timeout 3
-!
-health monitor vthunder_ud1p_heartbeat
-  retry 5
-  override-ipv4 192.168.0.31
-  override-port 5553
-  interval 5 timeout 3
-!
-health monitor vthunder_ud1p_heartbeat1
-  retry 5
-  override-ipv4 192.168.0.31
-  override-port 5553
-  interval 5 timeout 3
-!
-health monitor vthunder_ud1p_heartbeat12
-  retry 5
-  override-ipv4 192.168.0.31
-  override-port 5553
-  interval 5 timeout 3
-  method udp port 5553
-!
-health monitor vthunder_ud1p_heartbeat122
-  retry 5
-  override-ipv4 192.168.0.31
-  override-port 5553
-  interval 5 timeout 3
-!
-slb server ok12 10.43.24.118
-!
-slb server ok2 10.43.23.4
-!
-slb server ok3 10.43.23.5
-!
-slb server ok4 10.43.24.15
-!
-slb server ok5 10.43.24.16
-!
-slb server ok6 10.43.24.17
-!
-slb server ok7 10.43.24.18
-!
-slb server ok8 10.43.24.110
-!
-slb server ok9 10.43.24.111
-!
-slb server omkar 10.32.2.22
-!
-slb server rs1test-config1112019 6.6.5.219
-!
-slb server rs3test-config162 6.6.5.121
+slb virtual-server vserver1 10.10.10.15
   port 80 tcp
+    name vport1
 !
-slb server rs3test-config16229irt1 6.6.5.132
-  port 91 tcp
-!
-slb server rs3test-config16293r1 5.5.5.132
-  port 8080 tcp
-  port 8081 tcp
-!
-slb server rs3test-config163 6.6.5.123
-  port 80 tcp
-!
-slb server rs3test-config2813 6.6.5.216
-  port 92 tcp
-!
-slb server rs3test-config28134 6.6.5.217
-  port 93 tcp
-!
-slb server rs4test-config2813 5.5.5.216
-  port 92 tcp
-!
-slb server rs4test-config28134 5.5.5.217
-  port 93 tcp
-!
-slb server swapnilomiAf-cnfig4 20.19.5.135
-  port 73 tcp
-!
-slb server swapnilomiAf-cnfig5 20.19.5.136
-  port 74 tcp
-!
-slb server swapnilomiAf-cnfig6 20.19.5.140
-!
-slb server swapnilomiAf-cnfig7 20.19.5.141
-!
-slb server swapnilomiAf-cnfig8 20.19.5.142
-!
-slb server swapnilomiAf-cnfig9 20.19.5.144
-!
-slb server swapnilomiAf_confgi214 20.5.5.125
-!
-slb server swapnilomiAf_confgi215 20.5.5.126
-!
-slb server swapnilomiAf_confgi222 20.15.5.135
-!
-slb service-group ee876c45-5afc-40fc-8f5d-353698a15c60 tcp
-!
-slb service-group sg1test-config213 tcp
-  member rs3test-config2813 92
-  member rs4test-config2813 92
-!
-slb service-group sg1test-config2134 tcp
-  member rs3test-config28134 93
-  member rs4test-config28134 93
-!
-slb template http swapnilomAfrin-config4
-!
-slb template http adi-http-config1214
-!
-slb template http adi-http-config1112019
-!
-slb template http adi-http-config2813
-!
-slb template http swapnilomAfrin-config5
-!
-slb template http adi-http-config28134
-!
-slb template http adi-http-config12129irt1
-!
-slb template http adi-http-config121
-!
-slb template http swapnilomAfrin-config6
-!
-slb template http swapnilomAfrin-config7
-!
-slb template http abcd
-!
-slb virtual-server 23ef9c41-af1e-4d72-8398-b699f3c8c401 10.0.0.12
-  port 8080 http
-    name 23ef9c41-af1e-4d72-8398-b699f3c8c401_8080
-    conn-limit 8000
-    extended-stats
-    source-nat auto
-    service-group ee876c45-5afc-40fc-8f5d-353698a15c60
-!
-slb virtual-server ok 10.43.23.3
-!
-slb virtual-server omkar 10.10.10.10
-!
-slb virtual-server vip1test-config2813 2.2.2.216
-  port 90 http
-!
-slb virtual-server vip1test-config28134 2.2.2.217
-  port 80 http
-  port 90 http
-!
-slb virtual-server vs100 10.10.50.1 /24
-!
-slb virtual-server vs113 10.20.50.113 /24
-!
-slb virtual-server vs23 10.10.10.111 /24
-!
-slb virtual-server vs2500 10.20.10.113 /24
-!
-object-group network neha
-  any
-!
-end
-!Current config commit point for partition 0 is 0 & config mode is classical-mode
-
+slb virtual-server vserver2 fe80:cd00:0:cde:1257:0:211e:729c
