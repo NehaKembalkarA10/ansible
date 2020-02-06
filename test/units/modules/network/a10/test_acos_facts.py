@@ -57,7 +57,7 @@ class TestAcosFactsModule(TestAcosModule):
 
         self.run_commands.side_effect = load_from_file
 
-    def test_acos_facts_stacked(self):
+    def test_acos_facts_default(self):
         set_module_args(dict(gather_subset='default'))
         result = self.execute_module()
         self.assertEqual(
@@ -140,6 +140,6 @@ class TestAcosFactsModule(TestAcosModule):
             result['ansible_facts']['ansible_net_serialnum'], '123'
         )
         self.assertNotIn(
-            '!Current configuration: 566 bytes', result[
+            '!Current configuration:', result[
                 'ansible_facts']['ansible_net_config']
         )
