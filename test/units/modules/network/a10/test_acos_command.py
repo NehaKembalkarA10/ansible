@@ -12,7 +12,7 @@ import json
 from units.compat.mock import patch
 from ansible.modules.network.a10 import acos_command
 from units.modules.utils import set_module_args
-from .base import TestAcosModule, load_fixture
+from units.modules.network.a10.base import TestAcosModule, load_fixture
 
 
 class TestAcosCommandModule(TestAcosModule):
@@ -34,7 +34,7 @@ class TestAcosCommandModule(TestAcosModule):
 
         def load_from_file(*args, **kwargs):
             module, commands = args
-            output = list()
+            output = []
             if isinstance(commands, str):
                 filename = 'acos_command_' + str(commands).replace(' ', '_')
                 output.append(load_fixture(filename))
