@@ -10,7 +10,7 @@ __metaclass__ = type
 from ansible.modules.network.a10 import acos_facts
 from units.compat.mock import patch
 from units.modules.utils import set_module_args
-from .base import TestAcosModule, load_fixture
+from units.modules.network.a10.base import TestAcosModule, load_fixture
 
 
 class TestAcosFactsModule(TestAcosModule):
@@ -44,11 +44,12 @@ class TestAcosFactsModule(TestAcosModule):
         super(TestAcosFactsModule, self).tearDown()
         self.mock_run_commands.stop()
         self.mock_get_resource_connection.stop()
+        self.mock_get_capabilities.stop()
 
     def load_fixtures(self, commands=None):
         def load_from_file(*args, **kwargs):
             commands = kwargs['commands']
-            output = list()
+            output = []
 
             for command in commands:
                 filename = str(command).replace(' | ', '_').replace(' ', '_')
@@ -62,7 +63,7 @@ class TestAcosFactsModule(TestAcosModule):
         result = self.execute_module()
         self.assertEqual(
             result['ansible_facts'][
-                'ansible_net_hostid'], '403D7F4388AB0A18AC4C7D94BC03ACE9D5F7607B'
+                'ansible_net_hostid'], 'ABCDEFGHIJKLMNOPQ'
         )
         self.assertEqual(
             result['ansible_facts']['ansible_net_image'], '4.1.1-P9.105'
