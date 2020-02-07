@@ -167,7 +167,7 @@ class Interfaces(FactsBase):
             return match.group(1)
 
     def parse_ipv4(self, data):
-        addr_list = list()
+        addr_list = []
         match1 = re.findall(r'Internet address is (\S+)', data)
         match2 = re.findall(r'Subnet mask is (\S+)', data)
         if match1 and match2 and len(match1) == len(match2):
@@ -181,7 +181,7 @@ class Interfaces(FactsBase):
         return addr_list
 
     def parse_ipv6(self, data):
-        addr_list = list()
+        addr_list = []
         match1 = re.findall(r'IPv6 address is (\S+) Prefix (\S+)', data)
         for item in match1:
             addr_dict = dict()
